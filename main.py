@@ -1,4 +1,4 @@
-# This is the hub Python script of the football tipping system.
+# This is the hub Python script of the football tipping system. WITH CHANGES TO TEST COMMIT AND PUSH
 
 # The general logic of the system is to create essential objects by gaining input from users to find out
 # what season (e.g. 2025) and competition (e.g. EPL) is to be processed. Once a season and competition

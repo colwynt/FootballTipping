@@ -1,3 +1,4 @@
+# FootballComp Class
 class FootballComp:
     def __init__(self, CompID, SeasonID, Code):
         self.FootballCompID = CompID
