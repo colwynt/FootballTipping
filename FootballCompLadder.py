@@ -1,3 +1,4 @@
+import csv
 class FootballCompLadder:
     def __init__(self, FCLadderID, FCLadderFootballCompID, FCLadderSeasonID, FCLadderDateUpdated, FCLadderTeamID, FCLadderTeamIDPosition, FCLadderNumberOfTeams):
         self.FCLadderID = FCLadderID

@@ -1,3 +1,4 @@
+import csv
 class TipperCompLadder:
     def __init__(self, TCLadderID, TCLadderFootballCompID, TCLadderSeasonID, TCLadderDateUpdated, TCLadderTeamID, TCLadderTeamIDPosition, TCLadderNumberOfTeams):
         self.TCLadderID = TCLadderID

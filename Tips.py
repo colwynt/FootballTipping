@@ -1,3 +1,4 @@
+import csv
 class Tips:
     def __init__(self, TipID, TipperCompID, CompID, SeasonID, TipperID, GameID, Tip):
         self.TipID = TipID

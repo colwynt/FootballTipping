@@ -1,3 +1,4 @@
+import csv
 class FootballCompDraw:
     def __init__(self, FootballCompID, FootballSeasonID, GameDate, HomeTeamID, AwayTeamID):
         self.FootballCompID = FootballCompID

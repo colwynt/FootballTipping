@@ -386,74 +386,156 @@ def display_football_competitions(AllComps_display_football_competitions):
 
 ## FOOTBALL TEAM FUNCTIONS ##
 
-def process_team():
+def process_team(AllTeams_process_team, thisFootballTeam_process_team_Object):
 #    This function to be redeveloped using different approach - will use list of lists and not dictionaries
 
+    print( "These are the current teams:" )
+    AllTeams_process_team = read_football_teams( AllTeams_process_team )
+    display_football_teams( AllTeams_process_team )
     still_processing_team = True
-
     while still_processing_team:
-        print("Select what action to perform with a team:\n")
-        print("1. Display Teams")
-        print("2. Update Team")
-        print("3. Add Team")
-        print("4. Delete Team")
-        print( "X. Exit" )
+        print( f"Select what to do to with team(s):" )
+        print( f"1. Display Existing Football Teams" )
+        print( f"2. Update a Football Teams" )
+        print( f"3. Add another Football Team" )
+        print( f"4. Delete a Football Team" )
+        print( "X or x. Exit" )
 
-        team_choice = input("Enter your choice (1-4 or X): ")
+        team_choice = input( "Enter your choice (1-9 or X):" )
 
         if team_choice == 'X' or team_choice == 'x':
             print( "Bye until next time" )
             still_processing_team = False
-        elif team_choice == '1':
-            teamID_Name_Dict = {}  # initialise and empty dictionary
-            teamID_Name_Dict = read_teams(teamID_Name_Dict)
-            display_teams(teamID_Name_Dict)
-        elif team_choice == '2':
-            display_teams()
-            teamToUpdate = input("ID of team to update: ")
-            thisFootballTeam = FootballTeam(compID, seasonID, teamID, teamName)
-            print("Comp ID = {compID}")
-            print( "Season ID = {seasonID}")
-            print( "Team ID = {teamID}")
-            print( "Team Name = {teamName}")
-            newName = input( "Enter new Team Name: " )
+        elif team_choice == '1':  # Display existing teams
+            AllTeams_process_team = read_football_teams( AllTeams_process_team )
+            display_football_teams( AllTeams_process_team )
+        elif team_choice == '2':  # Update existing team
+            display_football_teams( AllTeams_process_team )
+            teamToUpdate = input( "ID of team to update: " )
+            # convert string input to list element
+            teamToUpdate = [teamToUpdate]
+            teamID = teamToUpdate
+            compID = "Update the field to compID"
+            compID = [compID]
+            seasonID = "Update the field to teamID"
+            seasonID = [seasonID]
+            teamName = "Update the field to teamName"
+            teamName = [teamName]
+            find_football_team( AllTeams_process_team, teamToUpdate )
+            updatedTeam = input( "Enter new team as comma separated values teamID,compID,seasonID,teamName: " )
+            updatedTeam = updatedTeam.split( "," )
+            # Update the list, write to file and recreate object
+            numberLines = len( AllTeams_process_team )
+            Desired_team = teamToUpdate
+            Desired_team_found = False
+            for i in range( numberLines ):  # go through file list line by line
+                Current_line = AllTeams_process_team[i]
+                if [Current_line[0]] == Desired_team:
+                    Desired_team_found = True
+                    AllTeams_process_team[i] = updatedTeam
+                    thisFootballTeam_process_team_Object = FootballTeam( teamID, compID, seasonID, teamName )
+                    thisFootballTeam_process_team_Object.writeTeamToFile( AllTeams_process_team )
+                    print( f"Team {teamID}, Competition {compID}, Season {seasonID}, TeamName {teamName} updated: \n" )
+                    break
 
-            thisFootballTeam.update_football_team()
-        elif team_choice == '3':
-            pass
-#            display_teams()
-#            teamToAdd = input( "Name of team to add: ")
-# Work out ID of team (next unique number)
-#            add_football_team()
-        elif team_choice == '4':
-            pass
+            if not Desired_team_found:
+                print( f"Team {Desired_team} not found" )
+            # Display all teams, showing changed team or no change
+            display_football_teams( AllTeams_process_team )
+
+        elif team_choice == '3':  # Add team
+            newCompetion = input( "Input new team in comma separated values of  teamid, compID, seasonID, compName: " )
+            compID, seasonID, compName = newCompetion.split( "," )
+            # Now create object for the football team
+            thisFootballComp_process_team_Object = FootballComp( compID, seasonID, compName )
+            thisFootballComp_process_team_Object.addTeam( AllTeams_process_team,
+                                                                    thisFootballComp_process_team_Object, compID,
+                                                                    seasonID, compName )
+            numberLines = len( AllComps_process_team )
+            # Add an entry into the list of teams and write to file
+            AllComps_process_team = read_football_teams( AllComps_process_team )
+            AllComps_process_team.append( [compID, seasonID, compName] )
+            thisFootballComp_process_team_Object.writeTeamToFile( AllComps_process_team )
+            print( f" Team {compID}, Season {seasonID}, compName {compName} added: \n" )
+            display_football_teams( AllTeams_process_team )
+
+        elif team_choice == '4':  # Delete team
+            # Request team to delete
+            teamToDelete = input( "ID of team to delete: " )
+            # convert string input to list element
+            teamToDelete = [teamToDelete]
+
+            # Find team to delete in list
+            numberLines = len( AllTeams_process_team )
+            Desired_team = teamToDelete
+            Desired_team_found = False
+            for i in range( numberLines ):  # go through file list line by line
+                Current_line = AllComps_process_team[i]
+                if [Current_line[0]] == Desired_team:
+                    Desired_team_found = True
+                    Desired_team_index = i
+                    thisFootballComp_process_team_Object = FootballTeam( Current_line[0], Current_line[1],
+                                                                            Current_line[2], Current_line[3] )
+            if Desired_team_found:
+                del AllTeams_process_team[Desired_team_index]
+            # Write list to disk
+            thisFootballComp_process_team_Object.writeTeamToFile( AllTeams_process_team )
+            # Delete object with compID
+            del thisFootballComp_process_team_Object
+            # Display all teams, showing team has been deleted
+            AllTeams_process_team = read_football_teams( AllTeams_process_team )
+            display_football_teams( AllComps_process_team )
 
     return
 
-def read_teams(AllTeams_read_teams):
+def read_football_teams(AllTeams_read_teams):
     # As with all other file reads in the system, the file data is read into a dictionary data structure.
     # Actions against the object are handled by manipulating the dictionary data. The entrire dictionary is then
     # written back to the file for permanent storage.
 
-    file = './Data/FootballTeams.csv'  # the permanent data file of football teams
+    csv_filename = './Data/FootballTeams.csv'  # the permanent data file of football teams
 
     with open( csv_filename, encoding="locale" ) as f:
         reader = csv.reader( f )
 
-        AllTeams = list( reader )
+        AllTeams_read_teams = list( reader )
+
     return AllTeams_read_teams
 
-def display_teams(AllTeams_display_teams): # displaying an object involves displaying the appropriate dictionary
+def display_football_teams(AllTeams_display_teams): # displaying an object involves displaying the appropriate dictionary
 
-    numberLines = len( AllTeams )
+    numberLines = len( AllTeams_display_teams )
     print( "" )
     print( "FOOTBALL TEAMS" )
     print( "----------------" )
     print( "[TeamID, SeasonID, CompID, TeamName]" )
     for i in range( numberLines ):  # print each line
-        print( AllTeams[i] )
+        print( AllTeams_display_teams[i] )
 
     return
+
+def find_football_team (AllTeams_find_football_team, UserRequestedTeamID_find_football_team):
+# go through the list of teams and when find required team create an object for it
+    Desired_team = UserRequestedTeamID_find_football_team
+    Desired_team_found = False
+    numberLines = len(AllTeams_find_football_team)
+    for i in range(numberLines): # go through file list line by line
+        Current_line = AllTeams_find_football_team[i]
+
+        if [Current_line[0]] == Desired_team:
+            Desired_team_found = True
+            thisTeamID = Current_line[0]
+            thisCompID = Current_line[1]
+            thisSeasonID = Current_line[2]
+            thisTeamName = Current_line[3]
+            thisFootballTeam_Object = FootballTeam(thisTeamID, thisCompID, thisSeasonID, thisTeamName)
+            print( "Football Team Object Created:" )
+            print(f"TeamID is {thisFootballTeam_Object.FootballTeamID}, CompID is {thisFootballTeam_Object.FootballCompID}, SeasonID is {thisFootballTeam_Object.FootballSeasonID}, TeamName is {thisFootballTeam_Object.FootballTeamName}\n" )
+
+    if not Desired_team_found:
+        print( f"Desired team {Desired_team} not in file" )
+
+    return thisFootballTeam_Object
 
 ## FOOTBALL COMPETITION LADDER FUNCTIONS
 
@@ -539,7 +621,7 @@ def main():
         elif choice == '4':
             process_draw()
         elif choice == '5':
-            process_team()
+            process_team(AllTeams, thisFootballTeam_Object)
         elif choice == '6':
             process_result()
         elif choice == '7':
@@ -562,16 +644,19 @@ if __name__ == '__main__':
     AllSeasons=[]
     AllSeasons = read_football_seasons(AllSeasons)
     display_football_seasons(AllSeasons)
-    UserRequestedFootballSeasonID = input("Enter football season ID of competition (Currently only '02', which is '2025' has associated data): ")
+    UserRequestedFootballSeasonID = input("Enter football season ID of competition: ")
     UserRequestedFootballSeasonID = [UserRequestedFootballSeasonID]
     thisFootballSeason_Object = find_football_season(AllSeasons, UserRequestedFootballSeasonID)
 
     AllComps=[]
     AllComps = read_football_competitions(AllComps)
     display_football_competitions(AllComps)
-    UserRequestedCompID = input("ID of football competition (Currently only 'EPL (01)' has linked data): ")
+    UserRequestedCompID = input("ID of football competition: ")
     UserRequestedCompID = [UserRequestedCompID]
     thisFootballComp_Object = find_football_comp(AllComps, UserRequestedCompID)
+
+    AllTeams=[]
+    thisFootballTeam_Object=[]
 
     # Best way to enter tips and results will probably be to enter these into csv files.
     # In real life people would email, telephone or otherwise get tips to you, and you would update the necessary
