@@ -1,5 +1,5 @@
 
-# This is the hub Python script of the football tipping system. Change for git.
+# This is the hub Python script of the football tipping system.
 
 # The general logic of the system is to create essential objects by gaining input from users to find out
 # what season (e.g. 2025) and competition (e.g. EPL) is to be processed. Once a season and competition
@@ -57,10 +57,30 @@ def read_football_competitions(AllComps_read_football_competitions):
     with open( csv_filename, encoding="locale") as f:
         reader = csv.reader( f )
         AllComps_read_football_competitions = list(reader)
-        print( f"FILE FootballCompetitions.csv READ WITH VALUES RETRIEVED:" )
-        numberLines = len(AllComps_read_football_competitions)
-        for i in range( numberLines ):
-            print(AllComps_read_football_competitions[i])
+        numberLines = len( AllComps_read_football_competitions )
+        if (numberLines > 0):
+            print( f"FILE FootballCompetitions.csv READ WITH VALUES RETRIEVED:" )
+            for i in range( numberLines ):
+                print(AllComps_read_football_competitions[i])
+
+    # CHECK IF numberLines = 0 then add competition (DO SAME FOR SEASONS)
+    if (numberLines == 0):
+        print("File FootballCompetitions.csv is empty. Please add a record.")
+        # Below here is a duplication of the code for competition_choice == '3' (add competition) in process_competition routine
+        newCompetition = input( "Input new competition in comma separated values of  compID, seasonID, compName: " )
+        compID, seasonID, compName = newCompetition.split( "," )
+        # Now create object for the football competition
+        thisFootballComp_process_competition_Object = FootballComp( compID, seasonID, compName )
+        thisFootballComp_process_competition_Object.addCompetition( AllComps_read_football_competitions,
+                                                                    thisFootballComp_process_competition_Object, compID,
+                                                                    seasonID, compName )
+        numberLines = len( AllComps_read_football_competitions )
+        # Add an entry into the list of competitions and write to file
+        AllComps_read_football_competitions = read_football_competitions( AllComps_read_football_competitions )
+        AllComps_read_football_competitions.append( [compID, seasonID, compName] )
+        thisFootballComp_process_competition_Object.writeCompToFile( AllComps_read_football_competitions )
+        print( f" Competition {compID}, Season {seasonID}, compName {compName} added: \n" )
+        display_football_competions( AllComps_read_football_competitions )
 
     return AllComps_read_football_competitions
 
@@ -77,7 +97,6 @@ def find_football_comp (AllComps_find_football_comp, UserRequestedCompID_find_fo
             thisCompID = Current_line[0]
             thisSeasonID = Current_line[1]
             thisCompName = Current_line[2]
-
             thisFootballComp_Object = FootballComp(thisCompID, thisSeasonID, thisCompName)
             print( "Football Comp Object Created:" )
             print(f"CompID is {thisFootballComp_Object.FootballCompID}, SeasonID is {thisFootballComp_Object.FootballSeasonID}, CompName is {thisFootballComp_Object.FootballCompName}\n" )
@@ -91,7 +110,7 @@ def display_football_competitions(AllComps_display_football_competitions):
     numberLines = len( AllComps_display_football_competitions )
 
     # Display all lines of file
-    print("COMPETIONS")
+    print("COMPETITIONS")
     print("----------")
     print( "[CompID, SeasonID, CompName]" )
     for i in range( numberLines ):
@@ -190,9 +209,10 @@ def process_season(AllSeasons_process_season, thisFootballSeason_process_season_
     still_processing_season = True
     while still_processing_season:
         print( f"Select what to do to with a season:" )
-        print( f"1. Add another Football Season" )
+        print( f"1. Display Existing Football Seasons" )
         print( f"2. Update a Football Season" )
-        print( f"3. Delete a Football Season" )
+        print( f"3. Add another Football Season" )
+        print( f"4. Delete a Football Season" )
         print( "X or x. Exit" )
 
         season_choice = input( "Enter your choice (1-9 or X):" )
@@ -200,19 +220,9 @@ def process_season(AllSeasons_process_season, thisFootballSeason_process_season_
         if season_choice == 'X' or season_choice == 'x':
             print( "Bye until next time" )
             still_processing_season = False
-        elif season_choice == '1': # Add new season
-            newSeason=input("Input new season in comma separated values of seasonID, compID, startDate, endDate, numberGames, numberTeams: ")
-            seasonID, compID, startDate, endDate, numberGames, numberTeams = newSeason.split( "," )
-            # Now create object for the football season
-            thisFootballSeason_process_season_Object = FootballSeason( seasonID, compID, startDate, endDate, numberGames, numberTeams )
-            thisFootballSeason_process_season_Object.addSeason(AllSeasons_process_season, thisFootballSeason_process_season_Object,seasonID, compID, startDate, endDate, numberGames, numberTeams)
-            numberLines = len( AllSeasons_process_season )
-            # Add an entry into the list of seasons and write to file
+        elif season_choice == '1': # Display existing seasons
             AllSeasons_process_season = read_football_seasons( AllSeasons_process_season )
-            AllSeasons_process_season.append( [seasonID, compID, startDate, endDate, numberGames, numberTeams] )
-            thisFootballSeason_process_season_Object.writeSeasonToFile(AllSeasons_process_season)
-            print(f"Season {seasonID}, Start {startDate}, End {endDate} added: \n")
-            display_football_seasons(AllSeasons_process_season)
+            display_football_seasons( AllSeasons_process_season )
         elif season_choice == '2': # Update existing system
             display_football_seasons(AllSeasons_process_season)
             seasonToUpdate = input( "ID of season to update: " )
@@ -253,7 +263,21 @@ def process_season(AllSeasons_process_season, thisFootballSeason_process_season_
             # Display all seasons, showing changed season or no change
             display_football_seasons( AllSeasons_process_season )
 
-        elif season_choice == '3':
+        elif season_choice == '3': # Add season
+            newSeason=input("Input new season in comma separated values of seasonID, compID, startDate, endDate, numberGames, numberTeams: ")
+            seasonID, compID, startDate, endDate, numberGames, numberTeams = newSeason.split( "," )
+            # Now create object for the football season
+            thisFootballSeason_process_season_Object = FootballSeason( seasonID, compID, startDate, endDate, numberGames, numberTeams )
+            thisFootballSeason_process_season_Object.addSeason(AllSeasons_process_season, thisFootballSeason_process_season_Object,seasonID, compID, startDate, endDate, numberGames, numberTeams)
+            numberLines = len( AllSeasons_process_season )
+            # Add an entry into the list of seasons and write to file
+            AllSeasons_process_season = read_football_seasons( AllSeasons_process_season )
+            AllSeasons_process_season.append( [seasonID, compID, startDate, endDate, numberGames, numberTeams] )
+            thisFootballSeason_process_season_Object.writeSeasonToFile(AllSeasons_process_season)
+            print(f"Season {seasonID}, Start {startDate}, End {endDate} added: \n")
+            display_football_seasons(AllSeasons_process_season)
+
+        elif season_choice == '4': # Delete season
             #Request season to delete
             seasonToDelete = input( "ID of season to delete: " )
             # convert string input to list element
@@ -279,18 +303,103 @@ def process_season(AllSeasons_process_season, thisFootballSeason_process_season_
             # Display all seasons, showing season has been deleted
             AllSeasons_process_season = read_football_seasons( AllSeasons_process_season )
             display_football_seasons( AllSeasons_process_season )
-
-
-
-        elif season_choice == '4':
-            pass
 #    GLOBAL_thisFootballSeason.addTeam()
 #    print(f"Team added {GLOBAL_thisFootballSeason.SeasonNumberTeams}")
 
     return
 
-def process_competition():
-    pass
+def process_competition(AllComps_process_competition, thisFootballComp_process_competition_Object):
+    print("These are the current competitions:")
+    AllComps_process_competition = read_football_competitions(AllComps_process_competition)
+    display_football_competitions(AllComps_process_competition)
+    still_processing_competition = True
+    while still_processing_competition:
+        print( f"Select what to do to with competition(s):" )
+        print( f"1. Display Existing Football Competitions" )
+        print( f"2. Update a Football Competition" )
+        print( f"3. Add another Football Competition" )
+        print( f"4. Delete a Football Competition" )
+        print( "X or x. Exit" )
+
+        competition_choice = input( "Enter your choice (1-9 or X):" )
+
+        if competition_choice == 'X' or competition_choice == 'x':
+            print( "Bye until next time" )
+            still_processing_competition = False
+        elif competition_choice == '1': # Display existing competitions
+            AllComps_process_competition = read_football_competitions( AllComps_process_competition )
+            display_football_competitions( AllComps_process_competition )
+        elif competition_choice == '2': # Update existing competition
+            display_football_competitions(AllComps_process_competition)
+            competitionToUpdate = input( "ID of competition to update: " )
+            # convert string input to list element
+            competitionToUpdate = [competitionToUpdate]
+            compID = competitionToUpdate
+            seasonID = "Update the field to seasonID"
+            seasonID = [seasonID]
+            competitionName = "Update the field to competitionName"
+            competitionName = [competitionName]
+            find_football_comp(AllComps_process_competition,competitionToUpdate)
+            updatedComp = input( "Enter new competition as comma separated values compID,seasonID,compName: " )
+            updatedComp = updatedComp.split( "," )
+            # Update the list, write to file and recreate object
+            numberLines = len( AllComps_process_competition )
+            Desired_competition = competitionToUpdate
+            Desired_competition_found = False
+            for i in range( numberLines ):  # go through file list line by line
+                Current_line = AllComps_process_competition[i]
+                if [Current_line[0]] == Desired_competition:
+                    Desired_competition_found = True
+                    AllComps_process_competition[i] = updatedComp
+                    thisFootballComp_process_competition_Object = FootballComp( compID, seasonID,  competitionName )
+                    thisFootballComp_process_competition_Object.writeCompetitionToFile( AllComps_process_competition )
+                    print( f"Competition {compID}, Season {seasonID}, CompName {competitionName} updated: \n" )
+                    break
+
+            if not Desired_competition_found:
+                print(f"Competition {Desired_competition} not found")
+            # Display all competitions, showing changed competition or no change
+            display_football_competitions( AllComps_process_competition )
+
+        elif competition_choice == '3': # Add competition
+            newCompetion=input("Input new competition in comma separated values of  compID, seasonID, compName: ")
+            compID, seasonID, compName = newCompetion.split( "," )
+            # Now create object for the football competition
+            thisFootballComp_process_competition_Object = FootballComp( compID, seasonID, compName )
+            thisFootballComp_process_competition_Object.addCompetition(AllComps_process_competition, thisFootballComp_process_competition_Object, compID, seasonID, compName)
+            numberLines = len( AllComps_process_competition )
+            # Add an entry into the list of competitions and write to file
+            AllComps_process_competition = read_football_competitions( AllComps_process_competition )
+            AllComps_process_competition.append( [compID, seasonID, compName] )
+            thisFootballComp_process_competition_Object.writeCompetitionToFile(AllComps_process_competition)
+            print(f" Competition {compID}, Season {seasonID}, compName {compName} added: \n")
+            display_football_competitions(AllComps_process_competition)
+
+        elif competition_choice == '4': # Delete competition
+            #Request competition to delete
+            competitionToDelete = input( "ID of competition to delete: " )
+            # convert string input to list element
+            competitionToDelete = [competitionToDelete]
+
+            #Find season to delete in list
+            numberLines = len(AllComps_process_competition)
+            Desired_competition = competitionToDelete
+            Desired_competition_found = False
+            for i in range( numberLines ):  # go through file list line by line
+                Current_line = AllComps_process_competition[i]
+                if [Current_line[0]] == Desired_competition:
+                    Desired_competition_found = True
+                    Desired_competition_index = i
+                    thisFootballComp_process_competition_Object = FootballComp( Current_line[0], Current_line[1], Current_line[2] )
+            if Desired_competition_found:
+                del AllComps_process_competition[Desired_competition_index]
+            # Write list to disk
+            thisFootballComp_process_competition_Object.writeCompetitionToFile( AllComps_process_competition )
+            # Delete object with compID
+            del thisFootballComp_process_competition_Object
+            # Display all competitions, showing competition has been deleted
+            AllComps_process_competition = read_football_competitions( AllComps_process_competition )
+            display_football_competitions( AllComps_process_competition )
 
     return
 
@@ -403,7 +512,7 @@ def main():
         elif choice == '1':
             process_season(AllSeasons, thisFootballSeason_Object)
         elif choice == '2':
-            process_competition()
+            process_competition(AllComps, thisFootballComp_Object)
         elif choice == '3':
             process_ladder()
         elif choice == '4':
