@@ -43,159 +43,7 @@ import csv
 # Below are the functions called within main.py. These are mainly functions to display details stored in
 # files and create associated objects.
 
-# All files contain comma separated values and are loaded into Lists. The lists for
-# seasons and competitions have central identifying information
-
-
-def read_football_competitions(AllComps_read_football_competitions):
-    # As with all other file reads in the system, the file data is read into a list data structure.
-    # Actions against the object are handle by manipulating the list data. The entire list is then
-    # written back to the file for permanent storage.
-
-    csv_filename = './Data/FootballCompetitions.csv'  # the permanent data file of football competitions
-
-    with open( csv_filename, encoding="locale") as f:
-        reader = csv.reader( f )
-        AllComps_read_football_competitions = list(reader)
-        numberLines = len( AllComps_read_football_competitions )
-        if (numberLines > 0):
-            print( f"FILE FootballCompetitions.csv READ WITH VALUES RETRIEVED:" )
-            for i in range( numberLines ):
-                print(AllComps_read_football_competitions[i])
-
-    # CHECK IF numberLines = 0 then add competition (DO SAME FOR SEASONS)
-    if (numberLines == 0):
-        print("File FootballCompetitions.csv is empty. Please add a record.")
-        # Below here is a duplication of the code for competition_choice == '3' (add competition) in process_competition routine
-        newCompetition = input( "Input new competition in comma separated values of  compID, seasonID, compName: " )
-        compID, seasonID, compName = newCompetition.split( "," )
-        # Now create object for the football competition
-        thisFootballComp_process_competition_Object = FootballComp( compID, seasonID, compName )
-        thisFootballComp_process_competition_Object.addCompetition( AllComps_read_football_competitions,
-                                                                    thisFootballComp_process_competition_Object, compID,
-                                                                    seasonID, compName )
-        numberLines = len( AllComps_read_football_competitions )
-        # Add an entry into the list of competitions and write to file
-        AllComps_read_football_competitions = read_football_competitions( AllComps_read_football_competitions )
-        AllComps_read_football_competitions.append( [compID, seasonID, compName] )
-        thisFootballComp_process_competition_Object.writeCompToFile( AllComps_read_football_competitions )
-        print( f" Competition {compID}, Season {seasonID}, compName {compName} added: \n" )
-        display_football_competions( AllComps_read_football_competitions )
-
-    return AllComps_read_football_competitions
-
-def find_football_comp (AllComps_find_football_comp, UserRequestedCompID_find_football_comp):
-# go through the list of competitions and when find required comp create an object for it
-    Desired_comp = UserRequestedCompID_find_football_comp
-    Desired_comp_found = False
-    numberLines = len(AllComps_find_football_comp)
-    for i in range(numberLines): # go through file list line by line
-        Current_line = AllComps_find_football_comp[i]
-
-        if [Current_line[0]] == Desired_comp:
-            Desired_comp_found = True
-            thisCompID = Current_line[0]
-            thisSeasonID = Current_line[1]
-            thisCompName = Current_line[2]
-            thisFootballComp_Object = FootballComp(thisCompID, thisSeasonID, thisCompName)
-            print( "Football Comp Object Created:" )
-            print(f"CompID is {thisFootballComp_Object.FootballCompID}, SeasonID is {thisFootballComp_Object.FootballSeasonID}, CompName is {thisFootballComp_Object.FootballCompName}\n" )
-
-    if not Desired_comp_found:
-        print( f"Desired season {Desired_comp} not in file" )
-
-    return thisFootballComp_Object
-
-def display_football_competitions(AllComps_display_football_competitions):
-    numberLines = len( AllComps_display_football_competitions )
-
-    # Display all lines of file
-    print("COMPETITIONS")
-    print("----------")
-    print( "[CompID, SeasonID, CompName]" )
-    for i in range( numberLines ):
-        print( AllComps_display_football_competitions[i] )
-
-def read_football_seasons(AllSeasons_read_football_seasons):
-    # As with all other file reads in the system, the file data is read into a list data structure.
-    # Actions against the object are handle by manipulating the list data. The entrire list is then
-    # written back to the file for permanent storage.
-
-    # seasonYear, seasonCompID, seasonstartDate, seasonendDate, seasonnumberRounds, seasonnumberTeams
-#    global GLOBAL_AllSeasons # only need to declare name as global, not type (list) as well
-    csv_filename = './Data/FootballSeasons.csv'
-    with open( csv_filename, encoding="locale") as f:
-        reader = csv.reader( f )
-        AllSeasons_read_football_seasons = list( reader )
-
-    return AllSeasons_read_football_seasons
-
-def display_football_seasons(AllSeasons_display_football_seasons):
-#    global GLOBAL_AllSeasons
-    numberLines = len(AllSeasons_display_football_seasons)
-    print( "" )
-    print( "FOOTBALL SEASONS" )
-    print( "----------------" )
-    print( "[SeasonID, SeasonYear, CompID, StartDate, EndDate, NumberOfGames, NumberOfTeams]" )
-    for i in range( numberLines ):  # print each line
-        print( AllSeasons_display_football_seasons[i] )
-
-    return
-
-def find_football_season(AllSeasons_find_football_season, FootballSeasonID_find_football_season):
-
-    thisFootballSeason_find_football_season_Object=[]
-
-    numberLines = len( AllSeasons_find_football_season )
-    Desired_season = FootballSeasonID_find_football_season
-    Desired_season_found = False
-    for i in range( numberLines ):  # go through file list line by line
-        Current_line = AllSeasons_find_football_season[i]
-        if [Current_line[0]] == Desired_season:
-            Desired_season_found = True
-            occurrenceInAllSeasons = i
-            # variables starting 'this' are attributes of user requested season
-            thisseasonID = UserRequestedFootballSeasonID
-            thiscompID = Current_line[1]
-            thisstartDate = Current_line[2]
-            thisendDate = Current_line[3]
-            thisnumberRounds = Current_line[4]
-            thisnumberTeams = Current_line[5]
-
-            # Now create object for the football season
-            thisFootballSeason_find_football_season_Object = FootballSeason( thisseasonID, thiscompID, thisstartDate, thisendDate, thisnumberRounds, thisnumberTeams)
-            print( "Football Season Object Created:" )
-            print(f"SeasonID is {thisFootballSeason_find_football_season_Object.SeasonID}, CompID is {thisFootballSeason_find_football_season_Object.SeasonFootballCompID}, startDate is {thisFootballSeason_find_football_season_Object.SeasonStartDate}, endDate is {thisFootballSeason_find_football_season_Object.SeasonEndDate}, numberGames is {thisFootballSeason_find_football_season_Object.SeasonNumberGames}, numberTeams is {thisFootballSeason_find_football_season_Object.SeasonNumberTeams}\n" )
-
-    if not Desired_season_found:
-        print(f"Desired season {Desired_season} not in file")
-
-    return thisFootballSeason_find_football_season_Object
-
-def read_teams(AllTeams_read_teams):
-    # As with all other file reads in the system, the file data is read into a dictionary data structure.
-    # Actions against the object are handled by manipulating the dictionary data. The entrire dictionary is then
-    # written back to the file for permanent storage.
-
-    file = './Data/FootballTeams.csv'  # the permanent data file of football teams
-
-    with open( csv_filename, encoding="locale" ) as f:
-        reader = csv.reader( f )
-
-        AllTeams = list( reader )
-    return AllTeams_read_teams
-
-def display_teams(AllTeams_display_teams): # displaying an object involves displaying the appropriate dictionary
-
-    numberLines = len( AllTeams )
-    print( "" )
-    print( "FOOTBALL TEAMS" )
-    print( "----------------" )
-    print( "[TeamID, SeasonID, CompID, TeamName]" )
-    for i in range( numberLines ):  # print each line
-        print( AllTeams[i] )
-
-    return
+## SEASON FUNCTIONS BELOW HERE ##
 
 # Within each of the process_<object> functions  display a submenu to provide options on actions to perform
 # against each of the objects. This will then result in the calling of a function within each of the
@@ -308,6 +156,67 @@ def process_season(AllSeasons_process_season, thisFootballSeason_process_season_
 
     return
 
+# All files contain comma separated values and are loaded into Lists. The lists for
+# seasons and competitions have central identifying information
+
+def read_football_seasons(AllSeasons_read_football_seasons):
+    # As with all other file reads in the system, the file data is read into a list data structure.
+    # Actions against the object are handle by manipulating the list data. The entrire list is then
+    # written back to the file for permanent storage.
+
+    # seasonYear, seasonCompID, seasonstartDate, seasonendDate, seasonnumberRounds, seasonnumberTeams
+#    global GLOBAL_AllSeasons # only need to declare name as global, not type (list) as well
+    csv_filename = './Data/FootballSeasons.csv'
+    with open( csv_filename, encoding="locale") as f:
+        reader = csv.reader( f )
+        AllSeasons_read_football_seasons = list( reader )
+
+    return AllSeasons_read_football_seasons
+
+def display_football_seasons(AllSeasons_display_football_seasons):
+#    global GLOBAL_AllSeasons
+    numberLines = len(AllSeasons_display_football_seasons)
+    print( "" )
+    print( "FOOTBALL SEASONS" )
+    print( "----------------" )
+    print( "[SeasonID, SeasonYear, CompID, StartDate, EndDate, NumberOfGames, NumberOfTeams]" )
+    for i in range( numberLines ):  # print each line
+        print( AllSeasons_display_football_seasons[i] )
+
+    return
+
+def find_football_season(AllSeasons_find_football_season, FootballSeasonID_find_football_season):
+
+    thisFootballSeason_find_football_season_Object=[]
+
+    numberLines = len( AllSeasons_find_football_season )
+    Desired_season = FootballSeasonID_find_football_season
+    Desired_season_found = False
+    for i in range( numberLines ):  # go through file list line by line
+        Current_line = AllSeasons_find_football_season[i]
+        if [Current_line[0]] == Desired_season:
+            Desired_season_found = True
+            occurrenceInAllSeasons = i
+            # variables starting 'this' are attributes of user requested season
+            thisseasonID = UserRequestedFootballSeasonID
+            thiscompID = Current_line[1]
+            thisstartDate = Current_line[2]
+            thisendDate = Current_line[3]
+            thisnumberRounds = Current_line[4]
+            thisnumberTeams = Current_line[5]
+
+            # Now create object for the football season
+            thisFootballSeason_find_football_season_Object = FootballSeason( thisseasonID, thiscompID, thisstartDate, thisendDate, thisnumberRounds, thisnumberTeams)
+            print( "Football Season Object Created:" )
+            print(f"SeasonID is {thisFootballSeason_find_football_season_Object.SeasonID}, CompID is {thisFootballSeason_find_football_season_Object.SeasonFootballCompID}, startDate is {thisFootballSeason_find_football_season_Object.SeasonStartDate}, endDate is {thisFootballSeason_find_football_season_Object.SeasonEndDate}, numberGames is {thisFootballSeason_find_football_season_Object.SeasonNumberGames}, numberTeams is {thisFootballSeason_find_football_season_Object.SeasonNumberTeams}\n" )
+
+    if not Desired_season_found:
+        print(f"Desired season {Desired_season} not in file")
+
+    return thisFootballSeason_find_football_season_Object
+
+## FOOTBALL COMPETITION FUNCTIONS ##
+
 def process_competition(AllComps_process_competition, thisFootballComp_process_competition_Object):
     print("These are the current competitions:")
     AllComps_process_competition = read_football_competitions(AllComps_process_competition)
@@ -403,15 +312,79 @@ def process_competition(AllComps_process_competition, thisFootballComp_process_c
 
     return
 
-def process_ladder():
-    pass
+def read_football_competitions(AllComps_read_football_competitions):
+    # As with all other file reads in the system, the file data is read into a list data structure.
+    # Actions against the object are handle by manipulating the list data. The entire list is then
+    # written back to the file for permanent storage.
+
+    csv_filename = './Data/FootballCompetitions.csv'  # the permanent data file of football competitions
+
+    with open( csv_filename, encoding="locale") as f:
+        reader = csv.reader( f )
+        AllComps_read_football_competitions = list(reader)
+        numberLines = len( AllComps_read_football_competitions )
+        if (numberLines > 0):
+            print( f"FILE FootballCompetitions.csv READ WITH VALUES RETRIEVED:" )
+            for i in range( numberLines ):
+                print(AllComps_read_football_competitions[i])
+
+    # CHECK IF numberLines = 0 then add competition (DO SAME FOR SEASONS)
+    if (numberLines == 0):
+        print("File FootballCompetitions.csv is empty. Please add a record.")
+        # Below here is a duplication of the code for competition_choice == '3' (add competition) in process_competition routine
+        newCompetition = input( "Input new competition in comma separated values of  compID, seasonID, compName: " )
+        compID, seasonID, compName = newCompetition.split( "," )
+        # Now create object for the football competition
+        thisFootballComp_process_competition_Object = FootballComp( compID, seasonID, compName )
+        thisFootballComp_process_competition_Object.addCompetition( AllComps_read_football_competitions,
+                                                                    thisFootballComp_process_competition_Object, compID,
+                                                                    seasonID, compName )
+        numberLines = len( AllComps_read_football_competitions )
+        # Add an entry into the list of competitions and write to file
+        AllComps_read_football_competitions = read_football_competitions( AllComps_read_football_competitions )
+        AllComps_read_football_competitions.append( [compID, seasonID, compName] )
+        thisFootballComp_process_competition_Object.writeCompToFile( AllComps_read_football_competitions )
+        print( f" Competition {compID}, Season {seasonID}, compName {compName} added: \n" )
+        display_football_competions( AllComps_read_football_competitions )
+
+    return AllComps_read_football_competitions
+
+def find_football_comp (AllComps_find_football_comp, UserRequestedCompID_find_football_comp):
+# go through the list of competitions and when find required comp create an object for it
+    Desired_comp = UserRequestedCompID_find_football_comp
+    Desired_comp_found = False
+    numberLines = len(AllComps_find_football_comp)
+    for i in range(numberLines): # go through file list line by line
+        Current_line = AllComps_find_football_comp[i]
+
+        if [Current_line[0]] == Desired_comp:
+            Desired_comp_found = True
+            thisCompID = Current_line[0]
+            thisSeasonID = Current_line[1]
+            thisCompName = Current_line[2]
+            thisFootballComp_Object = FootballComp(thisCompID, thisSeasonID, thisCompName)
+            print( "Football Comp Object Created:" )
+            print(f"CompID is {thisFootballComp_Object.FootballCompID}, SeasonID is {thisFootballComp_Object.FootballSeasonID}, CompName is {thisFootballComp_Object.FootballCompName}\n" )
+
+    if not Desired_comp_found:
+        print( f"Desired season {Desired_comp} not in file" )
+
+    return thisFootballComp_Object
+
+def display_football_competitions(AllComps_display_football_competitions):
+    numberLines = len( AllComps_display_football_competitions )
+
+    # Display all lines of file
+    print("COMPETITIONS")
+    print("----------")
+    print( "[CompID, SeasonID, CompName]" )
+    for i in range( numberLines ):
+        print( AllComps_display_football_competitions[i] )
 
     return
 
-def process_draw():
-    pass
 
-    return
+## FOOTBALL TEAM FUNCTIONS ##
 
 def process_team():
 #    This function to be redeveloped using different approach - will use list of lists and not dictionaries
@@ -455,28 +428,76 @@ def process_team():
         elif team_choice == '4':
             pass
 
+    return
+
+def read_teams(AllTeams_read_teams):
+    # As with all other file reads in the system, the file data is read into a dictionary data structure.
+    # Actions against the object are handled by manipulating the dictionary data. The entrire dictionary is then
+    # written back to the file for permanent storage.
+
+    file = './Data/FootballTeams.csv'  # the permanent data file of football teams
+
+    with open( csv_filename, encoding="locale" ) as f:
+        reader = csv.reader( f )
+
+        AllTeams = list( reader )
+    return AllTeams_read_teams
+
+def display_teams(AllTeams_display_teams): # displaying an object involves displaying the appropriate dictionary
+
+    numberLines = len( AllTeams )
+    print( "" )
+    print( "FOOTBALL TEAMS" )
+    print( "----------------" )
+    print( "[TeamID, SeasonID, CompID, TeamName]" )
+    for i in range( numberLines ):  # print each line
+        print( AllTeams[i] )
 
     return
+
+## FOOTBALL COMPETITION LADDER FUNCTIONS
+
+def process_ladder():
+    pass
+
+    return
+
+## FOOTBALL DRAW FUNCTIONS
+
+def process_draw():
+    pass
+
+    return
+
+## FOOTBALL GAME RESULTS FUNCTIONS ##
 
 def process_result():
     pass
 
     return
 
+## TIPPER FUNCTIONS ##
+
 def process_tippers():
     pass
 
     return
+
+## TIP FUNCTIONS ##
 
 def process_tips():
     pass
 
     return
 
+## TIPPER COMPETITION FUNCTIONS ##
+
 def process_tipper_competition():
     pass
 
     return
+
+## THE MAIN() FUNCTION ##
 
 # It is a widely accepted habit to have the main starting code in a main() function. This is because it is
 # a standard thing to do in other languages like C++ and java
@@ -557,7 +578,7 @@ if __name__ == '__main__':
     # csv file(s). Similarly, after games are played you would update csv file(s) with the results.
     # Could later develop fancy web interface for editing the csv files
 
-# After global objects and lists for season and competition created - can call main() function and present menus
+# After lists for season and competition created - can call main() function and present menus
 
 main()
 
