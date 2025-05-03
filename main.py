@@ -1,4 +1,4 @@
-
+#
 # This is the hub Python script of the football tipping system.
 
 # The general logic of the system is to create essential objects by gaining input from users to find out
